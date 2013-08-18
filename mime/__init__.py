@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from .type import Type
-from .types import Types
-from .mime_types import MIMETypes
+from .type import Type, Types
+from .mime_types import MIMETypes, VERSION
 
 """
 The namespace for MIME applications, tools, and libraries.
@@ -30,4 +29,4 @@ The namespace for MIME applications, tools, and libraries.
    print Types.all(lambda type: type.is_registered) # => False
 """
 
-VERSION = __version__ = '0.0.1'
+__version__ = version =VERSION
