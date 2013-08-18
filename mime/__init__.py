@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .type import Type
 from .types import Types
+from .mime_types import MIMETypes
 
 """
 The namespace for MIME applications, tools, and libraries.
@@ -22,7 +23,7 @@ The namespace for MIME applications, tools, and libraries.
    print text.binary?               # => False
    print text.ascii?                # => True
    print text == 'text/plain'       # => True
-   print Type.simplified('x-appl/x-zip') # => 'appl/zip'
+   print Type.simplify('x-appl/x-zip') # => 'appl/zip'
 
    print Types.any(lambda type: type.content_type == 'text/plain')
    # => True
