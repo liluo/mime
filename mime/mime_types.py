@@ -53,7 +53,7 @@ class MIMETypes(object):
             mime_type.extensions = extensions
             mime_type.encoding = encoding
             mime_type.system = platform
-            mime_type.obsolete = obsolete
+            mime_type.is_obsolete = obsolete
             mime_type.registered = (not unregistered)
             mime_type.docs = docs
             mime_type.url = urls
