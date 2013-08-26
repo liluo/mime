@@ -19,7 +19,7 @@ class TestMIMEType(MIMETestBase):
 
     def test_class_from_array(self):
         yaml = self.yaml_mime_type_from_array
-        self.assertIsInstance(yaml, Type)
+        self.assertTrue(isinstance(yaml, Type))
         self.assertEqual('text/yaml', yaml.simplified)
 
     def test_class_from_hash(self):
@@ -27,12 +27,12 @@ class TestMIMEType(MIMETestBase):
                                'Content-Transfer-Encoding': '8bit',
                                'System': 'd9d172f608',
                                'Extensions': ['yaml', 'yml']})
-        self.assertIsInstance(yaml, Type)
+        self.assertTrue(isinstance(yaml, Type))
         self.assertEqual('text/yaml', yaml.simplified)
 
     def test_class_from_mime_type(self):
         zip2 = Type.from_mime_type(self.zip_type)
-        self.assertIsInstance(zip2, Type)
+        self.assertTrue(isinstance(zip2, Type))
         self.assertEqual('appl/zip', self.zip_type.simplified)
         self.assertNotEqual(id(self.zip_type), id(zip2))
 
@@ -217,7 +217,7 @@ class TestMIMEType(MIMETestBase):
         yaml.system = 'win32'
         self.assertEqual(yaml.system, re.compile('win32'))
         yaml.system = None
-        self.assertIsNone(yaml.system)
+        self.assertTrue(yaml.system is None)
 
     def test_system_eh(self):
         yaml = self.yaml_mime_type_from_array
@@ -246,7 +246,7 @@ class TestMIMEType(MIMETestBase):
         self.assertEqual(str(Type('text/plain')), 'text/plain')
 
     def test_class_constructors(self):
-        self.assertIsNotNone(self.zip_type)
+        self.assertTrue(self.zip_type is not None)
         yaml = Type('text/x-yaml')
         yaml.extensions = ['yaml', 'yml']
         yaml.encoding = '8bit'
