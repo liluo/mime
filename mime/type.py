@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import sys
-from os.path import splitext
 from collections import defaultdict
 from itertools import chain
 from copy import deepcopy
@@ -27,6 +26,12 @@ LTSW_URL = "http://www.ltsw.se/knbase/internet/%s.htp"
 DRAFT_URL = "http://datatracker.ietf.org/public/idindex.cgi?command=id_details&filename=%s"
 CONTACT_URL = "http://www.iana.org/assignments/contact-people.htm#%s"
 REGEX_URLS = {'^RFC(\d+)$': RFC_URL, '^DRAFT:(.+)$': DRAFT_URL, '^\[([^\]]+)\]': CONTACT_URL}
+
+
+def flatten(l):
+    if isinstance(l, (list, tuple)):
+        return [e for i in l for e in flatten(i)]
+    return [l]
 
 
 class InvalidContentType(RuntimeError):
@@ -118,6 +123,7 @@ class Type(object):
         elif isinstance(other, basestring):
             return cmp(self.simplified, self.simplify(str(other)))
         else:
+            print self.content_type, other
             return cmp(self.content_type.lower(), other.lower())
 
     def __eq__(self, other):
@@ -178,10 +184,6 @@ class Type(object):
 
     @extensions.setter
     def extensions(self, value):
-        def flatten(l):
-            if isinstance(l, (list, tuple)):
-                return [e for i in l for e in flatten(i)]
-            return [l]
         self._extensions = [] if value is None else flatten(value)
 
     @property
@@ -207,9 +209,9 @@ class Type(object):
     @docs.setter
     def docs(self, d):
         if d:
-            a = d
-            if a:
-                pass
+            rs = re.compile('use-instead:([-\w.+]+)\/([-\w.+]*)').findall(d)
+            if rs:
+                self._use_instead = map(lambda e: "%s/%s" % e, rs)
             else:
                 self._use_instead = None
         self._docs = d
@@ -468,6 +470,16 @@ class Type(object):
         return mt
 
 
+class ItemMeta(type):
+    def __getitem__(cls, type_id):
+        if isinstance(type_id, Type):
+            return cls.type_veriants.get(type_id.simplified)
+        elif isinstance(type_id, re._pattern_type):
+            return cls.match(type_id)
+        else:
+            return cls.type_veriants.get(Type.simplify(type_id))
+
+
 class Types(object):
     """
     = MIME::Types
@@ -520,10 +532,10 @@ class Types(object):
         http://www.ltsw.se/knbase/internet/mime.htp
     """
 
-    TYPES = []
-    _types = set()
     type_veriants = defaultdict(list)
     extension_index = defaultdict(list)
+
+    __metaclass__ = ItemMeta
 
     def __init__(self, data_version=None):
         self.data_version = data_version
@@ -531,8 +543,22 @@ class Types(object):
     def __repr__(self):
         return '<MIME::Types version:%s>' % self.data_version
 
-    def __getitem__(self, type_id):  # flags={}
-        pass
+    @classmethod
+    def m(cls, type_id, flags={}):
+        return cls.prune_matches(cls[type_id], flags)
+
+    @classmethod
+    def match(cls, regex):
+        return flatten([v for k, v in cls.type_veriants.iteritems()
+                        if regex.search(k)])
+
+    @classmethod
+    def prune_matches(cls, matches, flags):
+        if flags.get('complete'):
+            matches = filter(lambda e: e.is_complete, matches)
+        if flags.get('platform'):
+            matches = filter(lambda e: e.is_platform, matches)
+        return matches
 
     @classmethod
     def add_type_variant(cls, mime_type):
@@ -542,6 +568,16 @@ class Types(object):
     def index_extensions(cls, mime_type):
         for ext in mime_type.extensions:
             cls.extension_index[ext].append(mime_type)
+
+    @classmethod
+    def any(cls, block):
+        for mt in flatten(cls.extension_index.values()):
+            if block(mt):
+                return True
+
+    @classmethod
+    def all(cls, block):
+        return all([block(mt) for mt in flatten(cls.extension_index.values())])
 
     @property
     def defined_types(self):
@@ -556,10 +592,10 @@ class Types(object):
 
     @classmethod
     def type_for(cls, filename, platform=False):
-        ext = splitext(filename)[1].lower()
+        ext = filename.split('.')[-1].lower()
         type_list = cls.extension_index.get(ext, [])
         if platform:
-            type_list = map(lambda t: not t.is_platform, type_list)
+            type_list = filter(lambda t: t.is_platform, type_list)
         return type_list
 
     of = type_for
