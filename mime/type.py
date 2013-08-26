@@ -431,7 +431,7 @@ class Type(object):
           t.extensions = ['yaml', 'yml']
         """
         wrap_key = lambda k: k.lower().replace('-', '_')
-        type_hash = {wrap_key(k): v for k, v in hash.items()}
+        type_hash = dict([(wrap_key(k), v) for k, v in hash.items()])
         mt = cls(type_hash['content_type'])
         mt.extensions = type_hash.get('extensions', [])
         mt.encoding = type_hash.get('encoding', 'default')
