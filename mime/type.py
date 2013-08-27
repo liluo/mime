@@ -101,7 +101,7 @@ class Type(object):
 
         # The encoded URL list for this MIME::Type. See #urls for more information.
         self.url = None
-        self.is_obsolete = None
+        self.is_obsolete = False
         self._docs = ''
         self._use_instead = None
 
@@ -381,7 +381,7 @@ class Type(object):
     @classmethod
     def from_array(cls, content_type,
                    extensions=[], encoding=None, system=None,
-                   is_obsolete=None, docs=None, url=None, is_registered=False):
+                   is_obsolete=False, docs=None, url=None, is_registered=False):
         """
         Creates a MIME::Type from an array in the form of:
           [type-name, [extensions], encoding, system]
@@ -438,7 +438,7 @@ class Type(object):
         mt.extensions = type_hash.get('extensions', [])
         mt.encoding = type_hash.get('encoding', 'default')
         mt.system = type_hash.get('system')
-        mt.is_obsolete = type_hash.get('is_obsolete')
+        mt.is_obsolete = type_hash.get('is_obsolete', False)
         mt.docs = type_hash.get('docs')
         mt.url = type_hash.get('url')
         mt.registered = type_hash.get('is_registered', False)
@@ -526,7 +526,6 @@ class Types(object):
     This is originally based on Perl MIME::Types by Mark Overmeer.
     This is Python clone of https://github.com/halostatue/mime-types
 
-    Licence:  MIT Licence
     See Also:
         http://www.iana.org/assignments/media-types/
         http://www.ltsw.se/knbase/internet/mime.htp
@@ -579,16 +578,17 @@ class Types(object):
     def all(cls, block):
         return all([block(mt) for mt in flatten(cls.extension_index.values())])
 
-    @property
-    def defined_types(self):
-        return chain(*self.type_veriants.values())
+    @classmethod
+    def defined_types(cls):
+        return chain(*cls.type_veriants.values())
 
-    @property
-    def count(self):
-        return len(list(self.defined_types))
+    @classmethod
+    def count(cls):
+        return len(list(cls.defined_types()))
 
-    def each(self, block):
-        return map(block, self.defined_types)
+    @classmethod
+    def each(cls, block):
+        return map(block, cls.defined_types())
 
     @classmethod
     def type_for(cls, filename, platform=False):
@@ -604,7 +604,7 @@ class Types(object):
     def add(cls, *types):
         for mime_type in types:
             if isinstance(mime_type, Types):
-                cls.add(*mime_type.defined_types)
+                cls.add(*mime_type.defined_types())
             else:
                 mts = cls.type_veriants.get(mime_type.simplified)
                 if mts and mime_type in mts:

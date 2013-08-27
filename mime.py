@@ -1,2 +1,0 @@
-def io():
-    print 'todo'

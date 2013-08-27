@@ -12,7 +12,7 @@ The namespace for MIME applications, tools, and libraries.
   == Usage
    from mime import Type, Types
 
-   plaintext = Types['text/plain'].first
+   plaintext = Types['text/plain'][0]
    # returns [text/plain, text/plain]
    text = plaintext[0]
    print text.media_type            # => 'text'
@@ -29,4 +29,4 @@ The namespace for MIME applications, tools, and libraries.
    print Types.all(lambda type: type.is_registered) # => False
 """
 
-__version__ = version =VERSION
+__version__ = version = VERSION

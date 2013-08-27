@@ -4,7 +4,7 @@ from glob import glob
 from os.path import realpath, dirname, join
 from type import Type, Types
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 DIR = dirname(realpath(__file__))
 STARTUP = True
 
@@ -53,7 +53,7 @@ class MIMETypes(object):
             mime_type.extensions = extensions
             mime_type.encoding = encoding
             mime_type.system = platform
-            mime_type.is_obsolete = obsolete
+            mime_type.is_obsolete = bool(obsolete)
             mime_type.registered = (not unregistered)
             mime_type.docs = docs
             mime_type.url = urls

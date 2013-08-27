@@ -64,7 +64,7 @@ class TestMIMETypes(MIMETestBase):
         self.assertTrue(Types.any(lambda t: t.content_type == 'text/plain'))
 
     def test_class_count(self):
-        self.assertTrue(Types.count > 42,
+        self.assertTrue(Types.count() > 42,
                         "A lot of types are expected to be known.")
 
     def test_ebook_formats(self):

@@ -1,17 +1,24 @@
 #!/usr/bin/env python
+import os
+from mime import VERSION
+from setuptools import setup, find_packages
 
-from setuptools import setup
 
 setup(name='mime',
-      version='0.0.1',
+      version=VERSION,
       keywords='mime types',
-      description='mime types',
+      description='MIME Types',
+      long_description=open(os.path.join(os.path.dirname(__file__),
+                                         'README.md')).read(),
+
       license='MIT License',
       url='https://github.com/liluo/mime',
       author='liluo',
       author_email='i@liluo.org',
 
-      py_modules=['mime'],
+      packages=find_packages(),
       include_package_data=True,
-      platforms='any',
+      platforms=['POSIX'],
+      classifiers=['Programming Language :: Python',
+                   'Operating System :: POSIX'],
       install_requires=[])

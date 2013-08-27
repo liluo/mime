@@ -228,7 +228,7 @@ class TestMIMEType(MIMETestBase):
     def test_to_a(self):
         yaml = self.yaml_mime_type_from_array
         self.assertEqual(yaml.to_a, ['text/x-yaml', ['yaml', 'yml'], '8bit',
-                                     re.compile('d9d172f608'), None, None, None, False])
+                                     re.compile('d9d172f608'), False, None, None, False])
 
     def test_to_hash(self):
         yaml = self.yaml_mime_type_from_array
@@ -238,7 +238,7 @@ class TestMIMEType(MIMETestBase):
                                         'System': re.compile('d9d172f608'),
                                         'Registered': False,
                                         'URL': None,
-                                        'Obsolete': None,
+                                        'Obsolete': False,
                                         'Docs': None})
 
     def test_to_s(self):
