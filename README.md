@@ -96,6 +96,9 @@ python run.py
 ```
 
 ### Changelog
+__v0.0.3 [2013-11-07]__
+* Remove print.
+
 __v0.0.2 [2013-08-27]__
 * It's worked.
 

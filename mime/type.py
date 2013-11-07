@@ -123,7 +123,6 @@ class Type(object):
         elif isinstance(other, basestring):
             return cmp(self.simplified, self.simplify(str(other)))
         else:
-            print self.content_type, other
             return cmp(self.content_type.lower(), other.lower())
 
     def __eq__(self, other):

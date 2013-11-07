@@ -4,7 +4,7 @@ from glob import glob
 from os.path import realpath, dirname, join
 from type import Type, Types
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 DIR = dirname(realpath(__file__))
 STARTUP = True
 
