@@ -21,4 +21,4 @@ setup(name='mime',
       platforms=['POSIX'],
       classifiers=['Programming Language :: Python',
                    'Operating System :: POSIX'],
-      install_requires=[])
+      install_requires=['future'])
