@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from future.utils import with_metaclass
+from future.utils import iteritems, itervalues
 import re
 import sys
 from collections import defaultdict
@@ -27,6 +29,12 @@ DRAFT_URL = "http://datatracker.ietf.org/public/idindex.cgi?command=id_details&f
 CONTACT_URL = "http://www.iana.org/assignments/contact-people.htm#%s"
 REGEX_URLS = {'^RFC(\d+)$': RFC_URL, '^DRAFT:(.+)$': DRAFT_URL, '^\[([^\]]+)\]': CONTACT_URL}
 
+if sys.version_info[0] == 3:
+    basestring = str
+    def cmp(x,y):
+        if isinstance(x, Type): return x.__cmp__(y)
+        if isinstance(y, Type): return y.__cmp__(x) * -1
+        return 0 if x == y else (1 if x > y else -1)
 
 def flatten(l):
     if isinstance(l, (list, tuple)):
@@ -125,6 +133,22 @@ class Type(object):
         else:
             return cmp(self.content_type.lower(), other.lower())
 
+    def __lt__(self, other):
+        if hasattr(other, 'content_type'):
+            return cmp(self.content_type.lower(), other.content_type.lower()) < 0
+        elif isinstance(other, basestring):
+            return cmp(self.simplified, self.simplify(str(other))) < 0
+        else:
+            return cmp(self.content_type.lower(), other.lower()) < 0
+
+    def __gt__(self, other):
+        if hasattr(other, 'content_type'):
+            return cmp(self.content_type.lower(), other.content_type.lower()) > 0
+        elif isinstance(other, basestring):
+            return cmp(self.simplified, self.simplify(str(other))) > 0
+        else:
+            return cmp(self.content_type.lower(), other.lower()) > 0
+
     def __eq__(self, other):
         """
         Returns +true+ if the other object is a MIME::Type and the content
@@ -144,7 +168,6 @@ class Type(object):
         Compares the MIME::Type based on how reliable it is before doing a
         normal <=> comparison. Used by MIME::Types#[] to sort types. The
         comparisons involved are:
-
         1. self.simplified <=> other.simplified (ensures that we
            don't try to compare different types)
         2. IANA-registered definitions < other definitions.
@@ -221,27 +244,22 @@ class Type(object):
         The decoded URL list for this MIME::Type.
         The special URL value IANA will be translated into:
           http://www.iana.org/assignments/media-types/<mediatype>/<subtype>
-
         The special URL value RFC### will be translated into:
           http://www.rfc-editor.org/rfc/rfc###.txt
-
         The special URL value DRAFT:name will be
         translated into:
           https://datatracker.ietf.org/public/idindex.cgi?
               command=id_detail&filename=<name>
-
         The special URL value
         LTSW will be translated
         into:
           http://www.ltsw.se/knbase/internet/<mediatype>.htp
-
         The special
         URL value
         [token] will
         be translated
         into:
           http://www.iana.org/assignments/contact-people.htm#<token>
-
         These values will be accessible through #urls, which always returns an array.
         """
         def _url(el):
@@ -384,14 +402,10 @@ class Type(object):
         """
         Creates a MIME::Type from an array in the form of:
           [type-name, [extensions], encoding, system]
-
         +extensions+, +encoding+, and +system+ are optional.
-
           Type.from_array("application/x-ruby", ['rb'], '8bit')
           # Type.from_array(["application/x-ruby", ['rb'], '8bit'])
-
         These are equivalent to:
-
           type = Type('application/x-ruby')
           type.extensions = ['rb']
           type.encoding = '8bit'
@@ -414,18 +428,14 @@ class Type(object):
         Symbol of the lowercase-underscore version can be used as
         well. That is, Content-Type can be provided as content-type,
         Content_Type, content_type, or :content_type.
-
         Known keys are <tt>Content-Type</tt>,
         <tt>Content-Transfer-Encoding</tt>, <tt>Extensions</tt>, and
         <tt>System</tt>.
-
           Type.from_hash({'Content-Type': 'text/x-yaml',
                           'Content-Transfer-Encoding': '8bit',
                           'System': 'linux',
                           'Extensions': ['yaml', 'yml']})
-
         This is equivalent to:
-
           t = Type.new('text/x-yaml')
           t.encoding = '8bit'
           t.system = 'linux'
@@ -447,11 +457,8 @@ class Type(object):
     def from_mime_type(cls, mime_type):
         """
         Essentially a copy constructor.
-
          Type.from_mime_type(plaintext)
-
         is equivalent to:
-
           t = Type.new(plaintext.content_type.dup)
           t.extensions  = plaintext.extensions.dup
           t.system      = plaintext.system.dup
@@ -472,14 +479,14 @@ class Type(object):
 class ItemMeta(type):
     def __getitem__(cls, type_id):
         if isinstance(type_id, Type):
-            return cls.type_veriants.get(type_id.simplified)
+            return cls.type_variants.get(type_id.simplified)
         elif isinstance(type_id, re._pattern_type):
             return cls.match(type_id)
         else:
-            return cls.type_veriants.get(Type.simplify(type_id))
+            return cls.type_variants.get(Type.simplify(type_id))
 
 
-class Types(object):
+class Types(with_metaclass(ItemMeta, object)):
     """
     = MIME::Types
     MIME types are used in MIME-compliant communications, as in e-mail or
@@ -490,21 +497,17 @@ class Types(object):
     so the list is long but not complete; don't hesitate to ask to add
     additional information. This library follows the IANA collection of MIME
     types (see below for reference).
-
     == Description
     MIME types are used in MIME entities, as in email or HTTP traffic. It is
     useful at times to have information available about MIME types (or,
     inversely, about files). A MIME::Type stores the known information about
     one MIME type.
-
     == Usage
      from mime import Type, Types
-
      plaintext = Types['text/plain']
      text = plaintext[0]
      print text.media_type            # => 'text'
      print text.sub_type              # => 'plain'
-
      print " ".join(text.extensions)  # => 'asc txt c cc h hh cpp'
      print text.encoding              # => 8bit
      print text.is_binary             # => False
@@ -513,7 +516,6 @@ class Types(object):
      print text.is_registered         # => True
      print text == 'text/plain'       # => True
      print Type.simplify('x-appl/x-zip') # => 'appl/zip'
-
     == About
     This module is built to conform to the MIME types of RFCs 2045 and 2231.
     It follows the official IANA registry at
@@ -521,16 +523,14 @@ class Types(object):
     ftp://ftp.iana.org/assignments/media-types with some unofficial types
     added from the the collection at
     http://www.ltsw.se/knbase/internet/mime.htp
-
     This is originally based on Perl MIME::Types by Mark Overmeer.
     This is Python clone of https://github.com/halostatue/mime-types
-
     See Also:
         http://www.iana.org/assignments/media-types/
         http://www.ltsw.se/knbase/internet/mime.htp
     """
 
-    type_veriants = defaultdict(list)
+    type_variants = defaultdict(list)
     extension_index = defaultdict(list)
 
     __metaclass__ = ItemMeta
@@ -547,7 +547,7 @@ class Types(object):
 
     @classmethod
     def match(cls, regex):
-        return flatten([v for k, v in cls.type_veriants.iteritems()
+        return flatten([v for k, v in iteritems(cls.type_variants)
                         if regex.search(k)])
 
     @classmethod
@@ -556,11 +556,11 @@ class Types(object):
             matches = filter(lambda e: e.is_complete, matches)
         if flags.get('platform'):
             matches = filter(lambda e: e.is_platform, matches)
-        return matches
+        return list(matches)
 
     @classmethod
     def add_type_variant(cls, mime_type):
-        cls.type_veriants[mime_type.simplified].append(mime_type)
+        cls.type_variants[mime_type.simplified].append(mime_type)
 
     @classmethod
     def index_extensions(cls, mime_type):
@@ -569,7 +569,7 @@ class Types(object):
 
     @classmethod
     def any(cls, block):
-        for mt in flatten(cls.extension_index.values()):
+        for mt in flatten(list(itervalues(cls.extension_index))):
             if block(mt):
                 return True
 
@@ -579,7 +579,7 @@ class Types(object):
 
     @classmethod
     def defined_types(cls):
-        return chain(*cls.type_veriants.values())
+        return chain(*cls.type_variants.values())
 
     @classmethod
     def count(cls):
@@ -595,7 +595,7 @@ class Types(object):
         type_list = cls.extension_index.get(ext, [])
         if platform:
             type_list = filter(lambda t: t.is_platform, type_list)
-        return type_list
+        return list(type_list)
 
     of = type_for
 
@@ -605,7 +605,7 @@ class Types(object):
             if isinstance(mime_type, Types):
                 cls.add(*mime_type.defined_types())
             else:
-                mts = cls.type_veriants.get(mime_type.simplified)
+                mts = cls.type_variants.get(mime_type.simplified)
                 if mts and mime_type in mts:
                     Warning('Type %s already registered as a variant of %s.',
                             mime_type, mime_type.simplified)

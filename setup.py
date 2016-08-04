@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 import os
-from mime import VERSION
+import re
+
 from setuptools import setup, find_packages
 
+with open('mime/version.py', 'r') as fd:
+    version = re.search(r'^VERSION\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
+if not version:
+        raise RuntimeError('Cannot find version information')
 
 setup(name='mime',
-      version=VERSION,
+      version=version,
       keywords='mime types',
       description='MIME Types',
       long_description=open(os.path.join(os.path.dirname(__file__),
@@ -21,4 +28,4 @@ setup(name='mime',
       platforms=['POSIX'],
       classifiers=['Programming Language :: Python',
                    'Operating System :: POSIX'],
-      install_requires=[])
+      install_requires=['future'])

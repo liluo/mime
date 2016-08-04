@@ -3,10 +3,12 @@ language: python
 python:
   - "2.6"
   - "2.7"
+  - "3.5"
 
 branches:
   only:
     - master
+    - develop
 
 script:
   - "cd tests"

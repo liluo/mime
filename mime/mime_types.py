@@ -2,9 +2,10 @@
 import re
 from glob import glob
 from os.path import realpath, dirname, join
-from type import Type, Types
+from .type import Type, Types
+from .version import VERSION
 
-VERSION = '0.0.3'
+
 DIR = dirname(realpath(__file__))
 STARTUP = True
 
@@ -62,8 +63,8 @@ class MIMETypes(object):
 
 
 def __parsing_error(filename, index, line, error):
-    print "%s:%s: Parsing error in MIME type definitions." % (filename, index)
-    print "=> %s" % line
+    print("%s:%s: Parsing error in MIME type definitions." % (filename, index))
+    print("=> %s" % line)
     raise error
 
 

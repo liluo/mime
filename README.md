@@ -4,7 +4,7 @@ MIME
 
 MIME Types for Python, clone of [halostatue/mime-types](https://github.com/halostatue/mime-types).
 
-This library allows for the identification of a file's likely MIME content type. 
+This library allows for the identification of a file's likely MIME content type.
 
 MIME types are used in MIME-compliant communications, as in e-mail or HTTP
 traffic, to indicate the type of content which is transmitted. MIME Types
@@ -34,8 +34,8 @@ easy_install mime
 
 ### Features
 
-MIME types are used in MIME entities, as in email or HTTP traffic. 
-It is useful at times to have information available about MIME types (or, inversely, about files). 
+MIME types are used in MIME entities, as in email or HTTP traffic.
+It is useful at times to have information available about MIME types (or, inversely, about files).
 A MIME Type stores the known information about one MIME type.
 
 ```bash
@@ -74,7 +74,7 @@ print rb.extensions               # => ['rb', 'rbw']
 
 import re
 image_types = mime.Types[re.compile('image')]
-# => [<MIME::Type image/vnd.microsoft.icon>, <MIME::Type application/x-imagemap>, ...] 
+# => [<MIME::Type image/vnd.microsoft.icon>, <MIME::Type application/x-imagemap>, ...]
 print mime.Types.count()          # => 1643
 ```
 
@@ -96,6 +96,9 @@ python run.py
 ```
 
 ### Changelog
+__v0.1.0 [2016-08-04]__
+* Support Python 3.x
+
 __v0.0.3 [2013-11-07]__
 * Remove print.
 
