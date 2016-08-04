@@ -29,7 +29,7 @@ DRAFT_URL = "http://datatracker.ietf.org/public/idindex.cgi?command=id_details&f
 CONTACT_URL = "http://www.iana.org/assignments/contact-people.htm#%s"
 REGEX_URLS = {'^RFC(\d+)$': RFC_URL, '^DRAFT:(.+)$': DRAFT_URL, '^\[([^\]]+)\]': CONTACT_URL}
 
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     basestring = str
     def cmp(x,y):
         if isinstance(x, Type): return x.__cmp__(y)

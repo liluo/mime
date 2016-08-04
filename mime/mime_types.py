@@ -3,8 +3,9 @@ import re
 from glob import glob
 from os.path import realpath, dirname, join
 from .type import Type, Types
+from .version import VERSION
 
-VERSION = '0.0.3'
+
 DIR = dirname(realpath(__file__))
 STARTUP = True
 
